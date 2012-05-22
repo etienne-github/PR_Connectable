@@ -86,10 +86,15 @@ public class circularContainer extends AbstractScene {
 				TapEvent te = (TapEvent)ge;
 				if (te.isTapped()){
 					if (app.popScene()){
-						app.getCurrentScene().getCanvas().addChild((MTComponent)component);
-						
+
 						component.recoverSizeAndPosition();
 						component.recoverInterface();
+						
+						
+						
+						app.getCurrentScene().getCanvas().addChild((MTComponent)component);
+						
+						
 						System.out.println("popped");
 					}
 				}

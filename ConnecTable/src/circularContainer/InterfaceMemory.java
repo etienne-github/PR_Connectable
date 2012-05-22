@@ -29,11 +29,12 @@ public class InterfaceMemory {
 			Iterator it = InterfaceItemList.iterator();
 			while(it.hasNext()){
 				
-				InterfaceItem current = (InterfaceItem) it.next();
-				System.out.println("adding "+current.comp.getClass().toString()+" to "+myComponent.getClass().toString());
-				current.recoverComponent();
+				InterfaceItem current = (InterfaceItem) it.next();		
+				
 				myComponent.addChild(current.comp);
-				System.out.println("added !!");
+				current.recoverComponent();
+				
+				
 				
 			}
 		}
@@ -44,24 +45,35 @@ public class InterfaceMemory {
 			Vector3D centerPoint;
 			float height;
 			float width;
+			float angle;
 
 			
 			public InterfaceItem(MTComponent S){
+				
 				comp=S;
 				Shape = (MTPolygon) S;
 				//centerPoint=Shape.getCenterPointLocal();
 				centerPoint = Shape.getCenterPointGlobal();
 				width = Shape.getWidthXY(TransformSpace.GLOBAL);
 				height = Shape.getHeightXY(TransformSpace.GLOBAL);
+				
+				Vector3D translationStore = new Vector3D();
+		        Vector3D rotationStore = new Vector3D();
+		        Vector3D scaleStore = new Vector3D();
+		        S.getGlobalMatrix().decompose(translationStore, rotationStore, scaleStore);
+		        angle=rotationStore.z;
+				
+				
+				//System.err.println("add comp "+S.getName()+toString()+" pos("+centerPoint+")");
 			}
 			
 			public void recoverComponent(){
-				System.out.println("recover center("+centerPoint.toString()+")/height("+height+")/width("+width+")" );
-				Vector3D v = new Vector3D(196.06252f,356.23334f);
-				//Shape.setPositionGlobal(v);
+				//System.out.println("recover center("+centerPoint.toString()+")/height("+height+")/width("+width+")" );
+				
 				Shape.setPositionGlobal(centerPoint);
 				Shape.setHeightXYGlobal(height);
 				Shape.setWidthXYGlobal(width);
+				Shape.rotateZGlobal(centerPoint, (float) Math.toDegrees(angle*-1));
 			}
 			
 		}

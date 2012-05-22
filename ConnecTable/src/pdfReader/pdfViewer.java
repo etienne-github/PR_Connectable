@@ -235,6 +235,7 @@ public class pdfViewer extends MTRectangle implements PropertyChangeListener, Ci
 		subPane.addChild(nextPage);
 		subPane.addChild(previousPage);
 		subPane.addChild(center);
+		System.err.println("creation nextPage pos : "+nextPage.getPosition(TransformSpace.GLOBAL));
 		nextPage.setNoStroke(true);
 		previousPage.setNoStroke(true);
 		center.setNoStroke(true);
@@ -443,7 +444,6 @@ public class pdfViewer extends MTRectangle implements PropertyChangeListener, Ci
 	});
 		
 		
-		//System.out.println("pos : "+nextPage.getCenterPointGlobal().toString());
 
 	}
 
@@ -478,19 +478,19 @@ public class pdfViewer extends MTRectangle implements PropertyChangeListener, Ci
 		//System.out.println("sceneRadius :"+c.getSceneRadius());
 		//System.out.println("width : "+this.getWidthXY(TransformSpace.GLOBAL));
 		//System.out.println("height : "+this.getHeightXY(TransformSpace.GLOBAL));
-		this.setSizeLocal(pdfWidth+ListWidth, pdfHeight/*+subPaneHeight*/);
+		//this.setSizeLocal(pdfWidth+ListWidth, pdfHeight/*+subPaneHeight*/);
 		float scale = (float) Math.sqrt(
 				(
 						Math.pow(c.getSceneRadius()*2,2)/
 						(
-								Math.pow(this.getHeightXY(TransformSpace.GLOBAL)/*-subPane.getHeightXY(TransformSpace.GLOBAL)*/,2)+
+								Math.pow(this.getHeightXY(TransformSpace.GLOBAL)-subPane.getHeightXY(TransformSpace.GLOBAL),2)+
 								Math.pow(this.getWidthXY(TransformSpace.GLOBAL),2)
 						)
 				)
 				);
 		//System.out.println("Scale :"+scale);
 		this.scale(scale, scale, scale, this.getCenterPointGlobal(),TransformSpace.GLOBAL);
-		this.setPositionGlobal(new Vector3D(app.width/2f,app.height/2f/*+subPane.getHeightXY(TransformSpace.GLOBAL)/2f*/));
+		this.setPositionGlobal(new Vector3D(app.width/2f,app.height/2f+subPane.getHeightXY(TransformSpace.GLOBAL)/2f));
 		return new Vector3D(this.getWidthXY(TransformSpace.GLOBAL),this.getHeightXY(TransformSpace.GLOBAL));
 		//System.out.println("Resized !");
 		
@@ -507,6 +507,7 @@ public class pdfViewer extends MTRectangle implements PropertyChangeListener, Ci
 		previousPage.setSizeXYGlobal(40, 40);
 		displayPageNumber.setSizeXYGlobal(70, 40);
 		
+
 		//add to circularContainer
 		c.getCanvas().addChild(nextPage);
 		c.getCanvas().addChild(previousPage);
@@ -619,6 +620,10 @@ public class pdfViewer extends MTRectangle implements PropertyChangeListener, Ci
 		
 		*/
 		subPane.setVisible(false);
+		subPane.setPickable(false);
+		this.setPickable(false);
+		this.setNoFill(true);
+		this.setNoStroke(true);
 
 	}
 
@@ -631,24 +636,48 @@ public class pdfViewer extends MTRectangle implements PropertyChangeListener, Ci
 	@Override
 	public void memorizeSizeAndPosition() {
 		mySizeAndPosition=new ComponentSizeAndPositionMemory(this);	
+		System.err.println("meme this pos : "+this.getPosition(TransformSpace.GLOBAL)+" ("+this.getWidthXY(TransformSpace.GLOBAL)+"*"+this.getHeightXY(TransformSpace.GLOBAL)+")");
+
 		
 	}
 
 
 	@Override
 	public void recoverSizeAndPosition() {
-		mySizeAndPosition.recoverSizeAndPosition();
 		
+		mySizeAndPosition.recoverSizeAndPosition(false);
+		System.err.println("reco this pos : "+this.getPosition(TransformSpace.GLOBAL)+" ("+this.getWidthXY(TransformSpace.GLOBAL)+"*"+this.getHeightXY(TransformSpace.GLOBAL)+")");
+
 	}
 
 
 	@Override
 	public void recoverInterface() {	
+        subPane.setVisible(true);
+		this.setPickable(true);
+		this.setNoFill(false);
+		this.setNoStroke(false);
 		
-		this.setSizeLocal(pdfWidth+ListWidth, pdfHeight+subPaneHeight);
-		subPane.setVisible(true);
 		
-		myInterfaceMemory.recoverInterface();
+		//this.setSizeLocal(pdfWidth+ListWidth, pdfHeight+subPaneHeight);
+		Vector3D translationStore = new Vector3D();
+        Vector3D rotationStore = new Vector3D();
+        Vector3D scaleStore = new Vector3D();
+        this.getGlobalMatrix().decompose(translationStore, rotationStore, scaleStore);
+        float Zrotation=rotationStore.z;
+        //this.rotateZGlobal(getCenterPointGlobal(), 0);
+        
+        //TO ZERO
+        this.rotateZGlobal(getCenterPointGlobal(), (float) Math.toDegrees(Zrotation)*-1);  
+        myInterfaceMemory.recoverInterface();
+        this.rotateZGlobal(getCenterPointGlobal(), (float) Math.toDegrees(Zrotation));
+		
+        
+		
+		
+		
+		//System.err.println("reco interface nextPage pos : "+nextPage.getPosition(TransformSpace.GLOBAL)+" ("+nextPage.getWidthXY(TransformSpace.GLOBAL)+"*"+nextPage.getHeightXY(TransformSpace.GLOBAL)+") visible ? "+nextPage.isVisible());
+		//System.err.println("reco interface this pos : "+this.getPosition(TransformSpace.GLOBAL)+" ("+this.getWidthXY(TransformSpace.GLOBAL)+"*"+this.getHeightXY(TransformSpace.GLOBAL)+")");
 		
 	}
 	
@@ -696,10 +725,25 @@ public class pdfViewer extends MTRectangle implements PropertyChangeListener, Ci
 
 	@Override
 	public void memorizeInterface() {
-		System.out.println("pos : "+nextPage.getCenterPointGlobal().toString());
-		myInterfaceMemory.addItem(nextPage);
-		myInterfaceMemory.addItem(previousPage);
-		myInterfaceMemory.addItem(displayPageNumber);
+		//System.err.println("memo interface nextPage pos : "+nextPage.getPosition(TransformSpace.GLOBAL)+" ("+nextPage.getWidthXY(TransformSpace.GLOBAL)+"*"+nextPage.getHeightXY(TransformSpace.GLOBAL)+")");
+		//System.err.println("memo interface this pos : "+this.getPosition(TransformSpace.GLOBAL)+" ("+this.getWidthXY(TransformSpace.GLOBAL)+"*"+this.getHeightXY(TransformSpace.GLOBAL)+")");
+
+		//this.setSizeLocal(pdfWidth+ListWidth, pdfHeight+subPaneHeight);
+				Vector3D translationStore = new Vector3D();
+		        Vector3D rotationStore = new Vector3D();
+		        Vector3D scaleStore = new Vector3D();
+		        this.getGlobalMatrix().decompose(translationStore, rotationStore, scaleStore);
+		        float Zrotation=rotationStore.z;
+		        //this.rotateZGlobal(getCenterPointGlobal(), 0);
+
+		        this.rotateZGlobal(getCenterPointGlobal(), (float) Math.toDegrees(Zrotation)*-1);  
+		        		myInterfaceMemory.addItem(nextPage);
+		        		myInterfaceMemory.addItem(previousPage);
+		        		myInterfaceMemory.addItem(displayPageNumber);
+		        this.rotateZGlobal(getCenterPointGlobal(), (float) Math.toDegrees(Zrotation));
+		
+		
+
 		
 	}
 

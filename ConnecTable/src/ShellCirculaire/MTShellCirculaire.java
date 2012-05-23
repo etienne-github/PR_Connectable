@@ -31,8 +31,8 @@ import org.mt4j.util.math.Vertex;
 import org.mt4j.util.opengl.GLFBO;
 
 import paint.MainDrawingScene;
-import pdfReader.pdfReaderScene;
-import pdfReader.pdfViewer;
+import pdfreader.pdfReaderScene;
+import pdfreader.PdfViewer;
 import processing.core.PApplet;
 import processing.core.PImage;
 import scenes.WaterSceneExportObf;
@@ -54,7 +54,7 @@ import Vignettes.VignettesScene;
 
 import org.mt4jx.components.visibleComponents.widgets.MTBrowserScene;
 
-import circularContainer.myMTSceneWindow;
+import circularcontainer.myMTSceneWindow;
 
 public class MTShellCirculaire extends AbstractScene {
 	/** The Constant logger. */
@@ -279,7 +279,7 @@ public class MTShellCirculaire extends AbstractScene {
 		list.setPositionGlobal(new Vector3D(app.width/2f, app.height/2f));
 		getCanvas().setFrustumCulling(true); 
 		
-		pdfViewer demoViewer =new pdfViewer(0.4f,"./src/pdfReader/data/UTC.pdf",(MTApplication) app);
+		PdfViewer demoViewer =new PdfViewer(0.4f,"./src/pdfReader/data/UTC.pdf",(MTApplication) app);
 		this.getCanvas().addChild(demoViewer);
 		demoViewer.setPositionGlobal(new Vector3D(app.width/2f,app.height/2f));
 		

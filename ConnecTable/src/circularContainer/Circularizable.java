@@ -1,10 +1,14 @@
-package circularContainer;
+package circularcontainer;
 
 import java.util.ArrayList;
 
 import org.mt4j.components.MTComponent;
 import org.mt4j.util.math.Vector3D;
-
+/**
+ * Circularizable is an interface to be implemented for the component entended to be nested in the CircularContainer.
+ * @author Etienne Girot
+ *
+ */
 public interface Circularizable {
 	
 
@@ -18,23 +22,22 @@ public interface Circularizable {
 	 * Resize component to fit greatest possible space on the circularContainer
 	 * @return 
 	 */
-	public Vector3D resize(circularContainer c);
+	public Vector3D resize(CircularContainer c);
 
-	/**
-	 * Memorize the position, size etc. of component modified in delegateInterface to reset them in recoverInterface
-	 */
-	//public void memorizeInterface(circularContainer c);
-	
+
 	/**
 	 * Delegate interface of component to integrate them on circularContainer
 	 */
-	public void delegateInterface(circularContainer c);
+	public void delegateInterface(CircularContainer c);
 	
 	/**
 	 * Reset size and position of Component Interface item 
 	 */
 	public void recoverInterface();
 	
+	/**
+	 * Reset size and position of the previously nested component
+	 */
 	public void recoverSizeAndPosition();
 	
 }

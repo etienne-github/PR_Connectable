@@ -15,7 +15,7 @@
  *   along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  ***********************************************************************/
-package circularContainer;
+package circularcontainer;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -247,7 +247,7 @@ extends MTRoundRectangle {
 	}
 	public void switchToCircularContainer(){
 		//System.out.println(myApp.toString()+((MTApplication) this.getRenderer()).toString());
-		circularContainer circularScene = new circularContainer(myApp,"circularContainer",myScene,fboWidth,fboHeight);
+		CircularContainer circularScene = new CircularContainer(myApp,"circularContainer",myScene,fboWidth,fboHeight);
 		myApp.addScene(circularScene);
 		myApp.pushScene();
 		myApp.changeScene(circularScene);

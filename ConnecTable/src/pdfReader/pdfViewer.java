@@ -1,4 +1,4 @@
-package pdfReader;
+package pdfreader;
 
 import java.awt.event.ActionListener;
 import java.beans.PropertyChangeEvent;
@@ -48,12 +48,10 @@ import org.mt4j.util.font.FontManager;
 import org.mt4j.util.font.IFont;
 import org.mt4j.util.math.Vector3D;
 
-import circularContainer.Circularizable;
-import circularContainer.ComponentSizeAndPositionMemory;
-import circularContainer.InterfaceMemory;
-import circularContainer.PropertyChangePropagator;
-import circularContainer.StubInterfaceMemory;
-import circularContainer.circularContainer;
+import circularcontainer.Circularizable;
+import circularcontainer.ComponentSizeAndPositionMemory;
+import circularcontainer.InterfaceMemory;
+import circularcontainer.CircularContainer;
 
 
 import advanced.mtShell.ICreateScene;
@@ -63,42 +61,53 @@ import processing.core.PGraphics;
 import processing.core.PImage;
 import scenes.WaterSceneExportObf;
 
-public class pdfViewer extends MTRectangle implements PropertyChangeListener, Circularizable{
+/**
+ * PdfViewer a pdf reader component with preview list.
+ * This component can be nested in a circularContainer.
+ * @author Etienne Girot
+ *
+ */
+public class PdfViewer extends MTRectangle implements PropertyChangeListener, Circularizable{
 
 	private MTTextField displayPageNumber;
-	final myMTPDF pdf;	
-	MTApplication app;
+	private final myMTPDF pdf;	
+	private MTApplication app;
 	private MTSceneTexture myScene;
-	MTEllipse pdfCenter;
-	MTEllipse sceneCenter;
-	MTWindow myWindow;
-	MTImageButton nextPage;
-	MTImageButton previousPage;
-	MTImageButton center;
-	MTRectangle subPane;
+	private MTEllipse pdfCenter;
+	private MTEllipse sceneCenter;
+	private MTWindow myWindow;
+	private MTImageButton nextPage;
+	private MTImageButton previousPage;
+	private MTImageButton center;
+	private MTRectangle subPane;
 
 	
-	float pdfWidth;
-	float pdfHeight;
+	private float pdfWidth;
+	private float pdfHeight;
 	
-	float ListWidth;
-	float borderThickness;
-	float CellWidth;		
-	float CellHeight;
-	float contentWidth;
-	float contentHeight;
-	float contentXOffset;
-	float contentYOffset;
-	float subPaneHeight;
-	
-	
-	ComponentSizeAndPositionMemory mySizeAndPosition;
-	InterfaceMemory myInterfaceMemory;
-	PropertyChangePropagator pCp = new PropertyChangePropagator();
+	private float ListWidth;
+	private float borderThickness;
+	private float CellWidth;		
+	private float CellHeight;
+	private float contentWidth;
+	private float contentHeight;
+	private float contentXOffset;
+	private float contentYOffset;
+	private float subPaneHeight;
 	
 	
+	private ComponentSizeAndPositionMemory mySizeAndPosition;
+	private InterfaceMemory myInterfaceMemory;
+
 	
-	public pdfViewer(float scale,String path, MTApplication appl){
+	
+	/**
+	 * Constructor
+	 * @param scale component size/pdf nominative size
+	 * @param path path of the file to be viewed
+	 * @param appl
+	 */
+	public PdfViewer(float scale,String path, MTApplication appl){
 		super(0,0,appl);
 
 		this.app = appl;
@@ -118,20 +127,21 @@ public class pdfViewer extends MTRectangle implements PropertyChangeListener, Ci
 
 		this.setFillColor(MTColor.BLACK);
 		
+		//getting pdf renderer
 		pdf = new myMTPDF(app, new File(path));
-		//pdf.scaleGlobal(scale, scale, scale, pdf.getAnchor());
 		
 		pdf.getSupport().addPropertyChangeListener(this);
-		//pdf.removeAllGestureEventListeners(DragProcessor.class);
+		
+		//remove unused gestures
 		pdf.removeAllGestureEventListeners(Rotate3DProcessor.class);
-		//pdf.removeAllGestureEventListeners(RotateProcessor.class);
+		pdf.removeAllGestureEventListeners(RotateProcessor.class);
 		
 		
 		
 		
 		
 
-		
+		//calculation viewer sizes
 		pdfWidth=(float) ((pdf.getWidthXY(TransformSpace.LOCAL))*scale);
 		pdfHeight=(float) ((pdf.getHeightXY(TransformSpace.LOCAL))*scale);
 		pdf.setSizeLocal(pdfWidth, pdfHeight);
@@ -146,42 +156,31 @@ public class pdfViewer extends MTRectangle implements PropertyChangeListener, Ci
 		contentYOffset=borderThickness;
 		subPaneHeight=pdfWidth/6f;
 		
+		//Scene within the pdf will be set
 		myScene = new MTSceneTexture(app, 0, 0, new ScalableScene(app,"pdf scalable scene"));
 		
 		float scaledH=app.height/pdfHeight;
 		float scaledW=app.width/pdfWidth;
-		
-		
-		System.err.println("rapport initial : "+String.valueOf(pdfWidth/pdfHeight));
-		System.err.println("fin : "+String.valueOf(1f/scaledW)+"-"+String.valueOf(1f/scaledH));
-		
-		/*myScene.setSizeXYGlobal(pdfWidth, pdfHeight);
-		this.addChild(myScene);
-		myScene.getScene().getCanvas().addChild(pdf);*/
 
-		//pdf.setSizeLocal(pdf.getWidthXY(TransformSpace.LOCAL)*scaledW, pdf.getHeightXY(TransformSpace.LOCAL)*scaledH);
-		//myScene
 		this.setSizeLocal(pdfWidth+ListWidth, pdfHeight+subPaneHeight);
 		
-		//myScene.setPositionRelativeToOther(this, new Vector3D(pdfWidth/2f,pdfHeight/2f,0/*(this.getWidthXY(TransformSpace.LOCAL)/2f)*1,(this.getHeightXY(TransformSpace.LOCAL)/2f)*1,0*/));
 		
 
 		
 		
 		
-		
+		//preview list
 		MTList list=new MTList(pdfWidth,0,ListWidth,pdfHeight,0,app);
 		list.setNoStroke(true);
 		this.addChild(list);
 		MTListCell currentCell;
-		//Vertex[] vertices = new Vertex[]{
-				//new Vertex(pdf.getWidthXY(TransformSpace.LOCAL)/10, pdf.getHeightXY(TransformSpace.LOCAL)/20,0, 0,0)};
 		
+		//preview list tap gesture listener (go to a determined page) 
 		class MTTapGestureCell implements IGestureEventListener{
 
 			int myIndex;
-			pdfReader.myMTPDF myMTPDF;
-			public MTTapGestureCell(int i, pdfReader.myMTPDF pdf){
+			pdfreader.myMTPDF myMTPDF;
+			public MTTapGestureCell(int i, pdfreader.myMTPDF pdf){
 				myIndex=i;
 				myMTPDF=pdf;
 			}
@@ -189,7 +188,11 @@ public class pdfViewer extends MTRectangle implements PropertyChangeListener, Ci
 			public boolean processGestureEvent(MTGestureEvent ge) {
 				TapEvent te = (TapEvent)ge;
 				if (te.isTapped()){
+					
+					pdf.setSizeXYGlobal(myWindow.getWidthXY(TransformSpace.GLOBAL),myWindow.getHeightXY(TransformSpace.GLOBAL));
 					pdf.setPageNumber(myIndex);
+					pdf.setPositionRelativeToOther(myWindow, myWindow.getCenterPointLocal());
+					
 				}
 				
 				return false;
@@ -197,8 +200,9 @@ public class pdfViewer extends MTRectangle implements PropertyChangeListener, Ci
 			
 		}
 		
+		//init preview list
 		for(int i=0;i<pdf.getNumberOfPage();i++){
-			System.out.println(i);
+			//.out.println(i);
 			MTRectangle rect=new MTRectangle(contentXOffset, contentYOffset/*pdf.getWidthXY(TransformSpace.LOCAL)/18*/, 0,contentWidth, contentHeight, app);
 			rect.setTexture(new PImage(pdf.getPreviewOfPage(i+1)));
 			rect.setStrokeColor(new MTColor(80,80,80, 255));
@@ -213,19 +217,26 @@ public class pdfViewer extends MTRectangle implements PropertyChangeListener, Ci
 			
 		}
 		
-		nextPage=new MTImageButton(app.loadImage("."+((String)File.separator)+"src"+((String)File.separator)+"pdfReader"+((String)File.separator)+"data"+((String)File.separator)+"arrow-right.png"),app);
-		previousPage=new MTImageButton(app.loadImage("."+((String)File.separator)+"src"+((String)File.separator)+"pdfReader"+((String)File.separator)+"data"+((String)File.separator)+"arrow-left.png"),app);
-		center = new MTImageButton(app.loadImage("."+((String)File.separator)+"src"+((String)File.separator)+"pdfReader"+((String)File.separator)+"data"+((String)File.separator)+"center.png"),app);
+		//set buttons previous/next page + switch to circularcontainer
+		nextPage=new MTImageButton(app.loadImage("."+((String)File.separator)+"src"+((String)File.separator)+"pdfreader"+((String)File.separator)+"data"+((String)File.separator)+"arrow-right.png"),app);
+		previousPage=new MTImageButton(app.loadImage("."+((String)File.separator)+"src"+((String)File.separator)+"pdfreader"+((String)File.separator)+"data"+((String)File.separator)+"arrow-left.png"),app);
+		center = new MTImageButton(app.loadImage("."+((String)File.separator)+"src"+((String)File.separator)+"pdfreader"+((String)File.separator)+"data"+((String)File.separator)+"center.png"),app);
+		
+		//current page display
 		this.displayPageNumber = new MTTextField(0, 0, 50, 26, FontManager.getInstance().getDefaultFont(app), app);
+		
+		//interface pane
 		subPane = new MTRectangle(0f,pdfHeight,0f,(float) (pdfWidth+ListWidth),subPaneHeight,app);
-		subPane.setTexture(app.loadImage("."+((String)File.separator)+"src"+((String)File.separator)+"pdfReader"+((String)File.separator)+"data"+((String)File.separator)+"steal_texture.jpg"));
+		subPane.setTexture(app.loadImage("."+((String)File.separator)+"src"+((String)File.separator)+"pdfreader"+((String)File.separator)+"data"+((String)File.separator)+"steal_texture.jpg"));
 		subPane.setNoStroke(true);
 		
 		
 		
 		this.addChild(subPane);
+		
+		//init interface memory for possible integration into a circular container
+		
 		myInterfaceMemory=new InterfaceMemory(subPane);
-		//subPane.removeAllGestureEventListeners();
 		subPane.addChild(displayPageNumber);
 		
 		displayPageNumber.removeAllGestureEventListeners();
@@ -235,16 +246,23 @@ public class pdfViewer extends MTRectangle implements PropertyChangeListener, Ci
 		subPane.addChild(nextPage);
 		subPane.addChild(previousPage);
 		subPane.addChild(center);
-		System.err.println("creation nextPage pos : "+nextPage.getPosition(TransformSpace.GLOBAL));
 		nextPage.setNoStroke(true);
 		previousPage.setNoStroke(true);
 		center.setNoStroke(true);
+		
+		//button listener
 		nextPage.addGestureListener(TapProcessor.class, new IGestureEventListener() {
 			@Override
 			public boolean processGestureEvent(MTGestureEvent ge) {
 				TapEvent te = (TapEvent)ge;
 				if(te.isTapped()){
+					//reset size
+					pdf.setSizeXYGlobal(myWindow.getWidthXY(TransformSpace.GLOBAL),myWindow.getHeightXY(TransformSpace.GLOBAL));
+					//change page
 					pdf.setPageNumber(pdf.getPageNumber()+1);
+					//reset position
+					pdf.setPositionRelativeToOther(myWindow, myWindow.getCenterPointLocal());
+					
 				}
 				return false;
 			}
@@ -255,12 +273,20 @@ public class pdfViewer extends MTRectangle implements PropertyChangeListener, Ci
 			public boolean processGestureEvent(MTGestureEvent ge) {
 				TapEvent te = (TapEvent)ge;
 				if(te.isTapped()){
+					//reset size
+					pdf.setSizeXYGlobal(myWindow.getWidthXY(TransformSpace.GLOBAL),myWindow.getHeightXY(TransformSpace.GLOBAL));
+					//change page
 					pdf.setPageNumber(pdf.getPageNumber()-1);
+					//reset position
+					pdf.setPositionRelativeToOther(myWindow, myWindow.getCenterPointLocal());
+
 				}
 				return false;
 			}
 		});
 		
+		
+
 		center.addGestureListener(TapProcessor.class, new IGestureEventListener(){
 
 			@Override
@@ -268,9 +294,11 @@ public class pdfViewer extends MTRectangle implements PropertyChangeListener, Ci
 				TapEvent te = (TapEvent)ge;
 				if(te.isTapped()){
 					
-					circularContainer circularScene = new circularContainer(app,"circularContainer",pdfViewer.this);
+					CircularContainer circularScene = new CircularContainer(app,"circularContainer",PdfViewer.this);
+					
+					//switch to circularContainer
 					app.addScene(circularScene);
-					app.pushScene();
+					app.pushScene();	
 					app.changeScene(circularScene);
 				}
 				return false;
@@ -278,6 +306,7 @@ public class pdfViewer extends MTRectangle implements PropertyChangeListener, Ci
 			
 		});
 		
+		//set buttons size and positon
 		previousPage.setSizeXYGlobal(subPaneHeight/2f, subPaneHeight/2f);
 		nextPage.setSizeXYGlobal(subPaneHeight/2f, subPaneHeight/2f);
 		center.setSizeXYGlobal(subPaneHeight/2f, subPaneHeight/2f);
@@ -313,13 +342,14 @@ public class pdfViewer extends MTRectangle implements PropertyChangeListener, Ci
 						subPane.getCenterPointRelativeToParent().y,
 						subPane.getCenterPointRelativeToParent().z));
 		
+		//Gestures on interface pan are bubbled to viewer
 		subPane.addGestureListener(DragProcessor.class, new IGestureEventListener(){
 
 			@Override
 			public boolean processGestureEvent(MTGestureEvent ge) {
 				DragEvent de=(DragEvent)ge;
 				if(de!=null){
-					pdfViewer.this.translateGlobal(de.getTranslationVect());
+					PdfViewer.this.translateGlobal(de.getTranslationVect());
 				}
 				return false;
 			}
@@ -327,6 +357,7 @@ public class pdfViewer extends MTRectangle implements PropertyChangeListener, Ci
 		});
 		
 		
+		//set pdf container 
 		myWindow = new MTWindow(0, 0, 0, pdfWidth, pdfHeight, 3, 3, app);
 		
 		
@@ -345,20 +376,20 @@ public class pdfViewer extends MTRectangle implements PropertyChangeListener, Ci
 		subPane.setPickable(false);
 		
 		
-
+		//set page display interaction with MTKeyboard
 		displayPageNumber.registerInputProcessor(new TapProcessor(app));
 		displayPageNumber.addGestureListener(TapProcessor.class, new IGestureEventListener() {
 			@Override
 			public boolean processGestureEvent(MTGestureEvent ge) {
 				TapEvent te = (TapEvent)ge;
 				if (te.isTapped()){
-					System.out.println("Called !");
+					//System.out.println("Called !");
 					MTKeyboard keyboard = new MTKeyboard(app);
 					keyboard.setFillColor(MTColor.GRAY);
 					keyboard.scale((float)((pdfWidth+ListWidth)/keyboard.getWidthXY(TransformSpace.LOCAL)),(float)((pdfWidth+ListWidth)/keyboard.getWidthXY(TransformSpace.LOCAL)),(float)((pdfWidth+ListWidth)/keyboard.getWidthXY(TransformSpace.LOCAL)),keyboard.getCenterPointGlobal());
-					pdfViewer.this.addChild(keyboard);
+					PdfViewer.this.addChild(keyboard);
 					keyboard.setVisible(true);
-					keyboard.setPositionRelativeToOther(pdfViewer.this, new Vector3D(pdfViewer.this.getWidthXY(TransformSpace.LOCAL)/2f,pdfViewer.this.getHeightXY(TransformSpace.LOCAL)+keyboard.getHeightXY(TransformSpace.LOCAL)/4f,0));
+					keyboard.setPositionRelativeToOther(PdfViewer.this, new Vector3D(PdfViewer.this.getWidthXY(TransformSpace.LOCAL)/2f,PdfViewer.this.getHeightXY(TransformSpace.LOCAL)+keyboard.getHeightXY(TransformSpace.LOCAL)/4f,0));
 					displayPageNumber.setText("");
 					displayPageNumber.setEnableCaret(true);
 					DisplayNumberInputKeyboardListener displayPageNumberInput = new DisplayNumberInputKeyboardListener(keyboard,displayPageNumber);
@@ -368,22 +399,6 @@ public class pdfViewer extends MTRectangle implements PropertyChangeListener, Ci
 			}
 		});
 
-		//DEBUG
-		/*pdfCenter = new MTEllipse(app, pdf.getPosition(TransformSpace.GLOBAL),10,10);
-		pdfCenter.setFillColor(MTColor.GREEN);
-		
-		this.addChild(pdfCenter);
-		sceneCenter = new MTEllipse(app, myWindow.getCenterPointGlobal(),10,10);
-		sceneCenter.setFillColor(MTColor.BLUE);
-		sceneCenter.setPositionGlobal(new Vector3D(0,0,0));
-
-		this.addChild(sceneCenter);*/
-		//END DEBUG
-		
-		
-		
-		
-		
 		pdf.addGestureListener(DragProcessor.class, new IGestureEventListener(){
 			
 			
@@ -448,11 +463,18 @@ public class pdfViewer extends MTRectangle implements PropertyChangeListener, Ci
 	}
 
 	
+	/**
+	 * Check if text entered into the display is valid
+	 * @param input
+	 */
 	public void checkPageInput(String input){
 		int a=0;
 		try{
 			a = Integer.parseInt(input);
+			pdf.setSizeXYGlobal(myWindow.getWidthXY(TransformSpace.GLOBAL),myWindow.getHeightXY(TransformSpace.GLOBAL));
 			pdf.setPageNumber(a);
+			pdf.setPositionRelativeToOther(myWindow, myWindow.getCenterPointLocal());
+			
 		}catch(Exception e){
 			
 		}
@@ -464,21 +486,16 @@ public class pdfViewer extends MTRectangle implements PropertyChangeListener, Ci
 	public void propertyChange(PropertyChangeEvent arg0) {
 		if(arg0.getPropertyName().compareTo("page_number")==0){
 			this.displayPageNumber.setText(arg0.getNewValue()+"/"+pdf.getNumberOfPages());
-			
-			//Propagate to stubInterface
-			pCp.propagate(arg0);
+
 		}
 		
 	}
 
+	
 
 	@Override
-	public Vector3D resize(circularContainer c) {
+	public Vector3D resize(CircularContainer c) {
 		
-		//System.out.println("sceneRadius :"+c.getSceneRadius());
-		//System.out.println("width : "+this.getWidthXY(TransformSpace.GLOBAL));
-		//System.out.println("height : "+this.getHeightXY(TransformSpace.GLOBAL));
-		//this.setSizeLocal(pdfWidth+ListWidth, pdfHeight/*+subPaneHeight*/);
 		float scale = (float) Math.sqrt(
 				(
 						Math.pow(c.getSceneRadius()*2,2)/
@@ -488,17 +505,15 @@ public class pdfViewer extends MTRectangle implements PropertyChangeListener, Ci
 						)
 				)
 				);
-		//System.out.println("Scale :"+scale);
 		this.scale(scale, scale, scale, this.getCenterPointGlobal(),TransformSpace.GLOBAL);
 		this.setPositionGlobal(new Vector3D(app.width/2f,app.height/2f+subPane.getHeightXY(TransformSpace.GLOBAL)/2f));
 		return new Vector3D(this.getWidthXY(TransformSpace.GLOBAL),this.getHeightXY(TransformSpace.GLOBAL));
-		//System.out.println("Resized !");
 		
 	}
 
 
 	@Override
-	public void delegateInterface(circularContainer c) {
+	public void delegateInterface(CircularContainer c) {
 
 		//BY MOVING INTERFACE ITEMS
 		
@@ -514,111 +529,11 @@ public class pdfViewer extends MTRectangle implements PropertyChangeListener, Ci
 		c.getCanvas().addChild(displayPageNumber);
 		
 		//move
-		displayPageNumber.setPositionGlobal(new Vector3D(app.width/2f,app.height/2f+this.getHeightXY(TransformSpace.GLOBAL)/2f+displayPageNumber.getHeightXY(TransformSpace.GLOBAL)/2+10));
-		previousPage.setPositionGlobal(new Vector3D(app.width/2f-displayPageNumber.getWidthXY(TransformSpace.GLOBAL)/2-previousPage.getWidthXY(TransformSpace.GLOBAL)-10,app.height/2f+this.getHeightXY(TransformSpace.GLOBAL)/2f+displayPageNumber.getHeightXY(TransformSpace.GLOBAL)/2+10));
-		nextPage.setPositionGlobal(new Vector3D(app.width/2f+displayPageNumber.getWidthXY(TransformSpace.GLOBAL)/2+nextPage.getWidthXY(TransformSpace.GLOBAL)+10,app.height/2f+this.getHeightXY(TransformSpace.GLOBAL)/2f+displayPageNumber.getHeightXY(TransformSpace.GLOBAL)/2+10));
-		
-		
-		/*
-		//BY DUPLICATING INTERFACE ITEM
-		
-		//Duplicate page number display
-		class StubDisplay extends MTTextField implements PropertyChangeListener{
-
-			public StubDisplay(int i, float x, float y, float width,
-					IFont iFont, MTApplication app) {
-				super(i, x, y, width, iFont, app);
-				// TODO Auto-generated constructor stub
-			}
-
-			@Override
-			public void propertyChange(PropertyChangeEvent evt) {
-				this.setText(evt.getNewValue()+"/"+pdf.getNumberOfPages());
-				
-			}
-			
-		}
-		
-		final StubDisplay stubDisplayPageNumber = new StubDisplay(0, 0, 50, 26, FontManager.getInstance().getDefaultFont(app), app);
-		stubDisplayPageNumber.setText(pdf.getPageNumber()+"/"+pdf.getNumberOfPages());
-		
-		//subscribe to propagate propertychange listener
-		pCp.subscribe(stubDisplayPageNumber);
-		
-		//Duplicate nextpage/previouspage buttons
-		MTImageButton stubNextPage=new MTImageButton(app.loadImage("/Users/etiennegirot/Desktop/UTC/PR01/Connectable/ConnecTable/src/pdfReader/data/arrow-right.png"),app);
-		MTImageButton stubPreviousPage=new MTImageButton(app.loadImage("/Users/etiennegirot/Desktop/UTC/PR01/Connectable/ConnecTable/src/pdfReader/data/arrow-left.png"),app);		
-		stubNextPage.setNoStroke(true);
-		stubPreviousPage.setNoStroke(true);
-		
-		//resize buttons
-		stubNextPage.setSizeXYGlobal(40, 40);
-		stubPreviousPage.setSizeXYGlobal(40, 40);
-		stubDisplayPageNumber.setSizeXYGlobal(70, 40);
-		
-		
-		//move duplicates to container
-		c.getCanvas().addChild(stubNextPage);
-		c.getCanvas().addChild(stubPreviousPage);
-		c.getCanvas().addChild(stubDisplayPageNumber);
-		
-		
-		stubDisplayPageNumber.setPositionGlobal(new Vector3D(app.width/2f,app.height/2f+this.getHeightXY(TransformSpace.GLOBAL)/2f+displayPageNumber.getHeightXY(TransformSpace.GLOBAL)/2+10));
-		stubPreviousPage.setPositionGlobal(new Vector3D(app.width/2f-stubDisplayPageNumber.getWidthXY(TransformSpace.GLOBAL)/2-previousPage.getWidthXY(TransformSpace.GLOBAL)-10,app.height/2f+this.getHeightXY(TransformSpace.GLOBAL)/2f+stubDisplayPageNumber.getHeightXY(TransformSpace.GLOBAL)/2+10));
-		stubNextPage.setPositionGlobal(new Vector3D(app.width/2f+stubDisplayPageNumber.getWidthXY(TransformSpace.GLOBAL)/2+nextPage.getWidthXY(TransformSpace.GLOBAL)+10,app.height/2f+this.getHeightXY(TransformSpace.GLOBAL)/2f+stubDisplayPageNumber.getHeightXY(TransformSpace.GLOBAL)/2+10));
-		
+		displayPageNumber.setPositionGlobal(new Vector3D(app.width/2f,app.height/2f+this.getHeightXY(TransformSpace.GLOBAL)/2f+displayPageNumber.getHeightXY(TransformSpace.GLOBAL)/2+10-subPaneHeight));
+		previousPage.setPositionGlobal(new Vector3D(app.width/2f-displayPageNumber.getWidthXY(TransformSpace.GLOBAL)/2-previousPage.getWidthXY(TransformSpace.GLOBAL)-10,app.height/2f+this.getHeightXY(TransformSpace.GLOBAL)/2f+displayPageNumber.getHeightXY(TransformSpace.GLOBAL)/2+10-subPaneHeight));
+		nextPage.setPositionGlobal(new Vector3D(app.width/2f+displayPageNumber.getWidthXY(TransformSpace.GLOBAL)/2+nextPage.getWidthXY(TransformSpace.GLOBAL)+10,app.height/2f+this.getHeightXY(TransformSpace.GLOBAL)/2f+displayPageNumber.getHeightXY(TransformSpace.GLOBAL)/2+10-subPaneHeight));
 		
 
-		
-		
-		//add gesture listeners
-		stubNextPage.addGestureListener(TapProcessor.class, new IGestureEventListener() {
-			@Override
-			public boolean processGestureEvent(MTGestureEvent ge) {
-				TapEvent te = (TapEvent)ge;
-				if(te.isTapped()){
-					pdf.setPageNumber(pdf.getPageNumber()+1);
-				}
-				return false;
-			}
-		});
-		
-		stubPreviousPage.addGestureListener(TapProcessor.class, new IGestureEventListener() {
-			@Override
-			public boolean processGestureEvent(MTGestureEvent ge) {
-				TapEvent te = (TapEvent)ge;
-				if(te.isTapped()){
-					pdf.setPageNumber(pdf.getPageNumber()-1);
-				}
-				return false;
-			}
-		});
-		
-		stubDisplayPageNumber.removeAllGestureEventListeners();
-		stubDisplayPageNumber.registerInputProcessor(new TapProcessor(app));
-		stubDisplayPageNumber.addGestureListener(TapProcessor.class, new IGestureEventListener() {
-			@Override
-			public boolean processGestureEvent(MTGestureEvent ge) {
-				TapEvent te = (TapEvent)ge;
-				if (te.isTapped()){
-					System.out.println("Called !");
-					MTKeyboard keyboard = new MTKeyboard(app);
-					keyboard.setFillColor(MTColor.GRAY);
-					keyboard.scale((float)((pdfWidth+ListWidth)/keyboard.getWidthXY(TransformSpace.LOCAL)),(float)((pdfWidth+ListWidth)/keyboard.getWidthXY(TransformSpace.LOCAL)),(float)((pdfWidth+ListWidth)/keyboard.getWidthXY(TransformSpace.LOCAL)),keyboard.getCenterPointGlobal());
-					pdfViewer.this.addChild(keyboard);
-					keyboard.setVisible(true);
-					keyboard.setPositionRelativeToOther(pdfViewer.this, new Vector3D(pdfViewer.this.getWidthXY(TransformSpace.LOCAL)/2f,pdfViewer.this.getHeightXY(TransformSpace.LOCAL)-keyboard.getHeightXY(TransformSpace.LOCAL)/4f,0));
-					stubDisplayPageNumber.setText("");
-					stubDisplayPageNumber.setEnableCaret(true);
-					DisplayNumberInputKeyboardListener displayPageNumberInput = new DisplayNumberInputKeyboardListener(keyboard,stubDisplayPageNumber);
-					keyboard.addTextInputListener(displayPageNumberInput);
-				}
-				return false;
-			}
-		});
-		
-		
-		*/
 		subPane.setVisible(false);
 		subPane.setPickable(false);
 		this.setPickable(false);
@@ -636,7 +551,7 @@ public class pdfViewer extends MTRectangle implements PropertyChangeListener, Ci
 	@Override
 	public void memorizeSizeAndPosition() {
 		mySizeAndPosition=new ComponentSizeAndPositionMemory(this);	
-		System.err.println("meme this pos : "+this.getPosition(TransformSpace.GLOBAL)+" ("+this.getWidthXY(TransformSpace.GLOBAL)+"*"+this.getHeightXY(TransformSpace.GLOBAL)+")");
+		//System.err.println("meme this pos : "+this.getPosition(TransformSpace.GLOBAL)+" ("+this.getWidthXY(TransformSpace.GLOBAL)+"*"+this.getHeightXY(TransformSpace.GLOBAL)+")");
 
 		
 	}
@@ -646,7 +561,7 @@ public class pdfViewer extends MTRectangle implements PropertyChangeListener, Ci
 	public void recoverSizeAndPosition() {
 		
 		mySizeAndPosition.recoverSizeAndPosition(false);
-		System.err.println("reco this pos : "+this.getPosition(TransformSpace.GLOBAL)+" ("+this.getWidthXY(TransformSpace.GLOBAL)+"*"+this.getHeightXY(TransformSpace.GLOBAL)+")");
+		//System.err.println("reco this pos : "+this.getPosition(TransformSpace.GLOBAL)+" ("+this.getWidthXY(TransformSpace.GLOBAL)+"*"+this.getHeightXY(TransformSpace.GLOBAL)+")");
 
 	}
 
@@ -716,7 +631,7 @@ public class pdfViewer extends MTRectangle implements PropertyChangeListener, Ci
 			if (unicode.equals("\n")){
 				myField.setEnableCaret(false);
 				myKB.setVisible(false);
-				pdfViewer.this.checkPageInput(myField.getText());
+				PdfViewer.this.checkPageInput(myField.getText());
 			}else{
 				myField.appendCharByUnicode(unicode);
 			}
@@ -725,16 +640,13 @@ public class pdfViewer extends MTRectangle implements PropertyChangeListener, Ci
 
 	@Override
 	public void memorizeInterface() {
-		//System.err.println("memo interface nextPage pos : "+nextPage.getPosition(TransformSpace.GLOBAL)+" ("+nextPage.getWidthXY(TransformSpace.GLOBAL)+"*"+nextPage.getHeightXY(TransformSpace.GLOBAL)+")");
-		//System.err.println("memo interface this pos : "+this.getPosition(TransformSpace.GLOBAL)+" ("+this.getWidthXY(TransformSpace.GLOBAL)+"*"+this.getHeightXY(TransformSpace.GLOBAL)+")");
 
-		//this.setSizeLocal(pdfWidth+ListWidth, pdfHeight+subPaneHeight);
 				Vector3D translationStore = new Vector3D();
 		        Vector3D rotationStore = new Vector3D();
 		        Vector3D scaleStore = new Vector3D();
 		        this.getGlobalMatrix().decompose(translationStore, rotationStore, scaleStore);
 		        float Zrotation=rotationStore.z;
-		        //this.rotateZGlobal(getCenterPointGlobal(), 0);
+
 
 		        this.rotateZGlobal(getCenterPointGlobal(), (float) Math.toDegrees(Zrotation)*-1);  
 		        		myInterfaceMemory.addItem(nextPage);

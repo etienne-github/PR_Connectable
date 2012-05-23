@@ -1,4 +1,4 @@
-package pdfReader;
+package pdfreader;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.File;
@@ -84,8 +84,8 @@ public class pdfReaderScene extends AbstractScene implements PropertyChangeListe
 		class MTTapGestureCell implements IGestureEventListener{
 
 			int myIndex;
-			pdfReader.myMTPDF myMTPDF;
-			public MTTapGestureCell(int i, pdfReader.myMTPDF pdf){
+			pdfreader.myMTPDF myMTPDF;
+			public MTTapGestureCell(int i, pdfreader.myMTPDF pdf){
 				myIndex=i;
 				myMTPDF=pdf;
 			}

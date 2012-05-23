@@ -1,4 +1,4 @@
-package circularContainer;
+package circularcontainer;
 
 import java.awt.Component;
 import java.util.ArrayList;
@@ -9,22 +9,38 @@ import org.mt4j.components.TransformSpace;
 import org.mt4j.components.visibleComponents.shapes.AbstractShape;
 import org.mt4j.components.visibleComponents.shapes.MTPolygon;
 import org.mt4j.util.math.Vector3D;
-
+/**
+ * “nterfaceMemory is a class storing information about a component interface at the time of integration in the CircularContainer.
+ * It is useful when getting back to the original container.
+ * @author Etienne Girot
+ *
+ */
 public class InterfaceMemory {
-		ArrayList<InterfaceItem> InterfaceItemList;
-		MTComponent myComponent;
+		private ArrayList<InterfaceItem> InterfaceItemList;
+		private MTComponent myComponent;
 	
+		/**
+		 * Constructor
+		 * @param c component whose interface has to be kept
+		 */
 		public InterfaceMemory(MTComponent c){
 			InterfaceItemList = new ArrayList<InterfaceItem>();
 			myComponent = c;
 			
 		}
 		
+		/**
+		 * Adding a interface item to be remembered
+		 * @param C
+		 */
 		public void addItem(MTComponent C){
 			InterfaceItem i = new InterfaceItem(C);
 			InterfaceItemList.add(i);
 		}
 		
+		/**
+		 * Reset interface item original size and position
+		 */
 		public void recoverInterface(){
 			Iterator it = InterfaceItemList.iterator();
 			while(it.hasNext()){
@@ -38,7 +54,11 @@ public class InterfaceMemory {
 				
 			}
 		}
-		
+		/**
+		 * Helper class for storing and recovering position and size information
+		 * @author Etienne Girot
+		 *
+		 */
 		class InterfaceItem {
 			MTComponent comp;
 			MTPolygon Shape;
@@ -48,6 +68,10 @@ public class InterfaceMemory {
 			float angle;
 
 			
+			/**
+			 * Constructor
+			 * @param S
+			 */
 			public InterfaceItem(MTComponent S){
 				
 				comp=S;
@@ -67,6 +91,9 @@ public class InterfaceMemory {
 				//System.err.println("add comp "+S.getName()+toString()+" pos("+centerPoint+")");
 			}
 			
+			/**
+			 * Reset composent original size and position
+			 */
 			public void recoverComponent(){
 				//System.out.println("recover center("+centerPoint.toString()+")/height("+height+")/width("+width+")" );
 				

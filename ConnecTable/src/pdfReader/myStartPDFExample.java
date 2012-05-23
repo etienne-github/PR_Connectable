@@ -1,4 +1,4 @@
-package pdfReader;
+package pdfreader;
 
 import org.mt4j.MTApplication;
 

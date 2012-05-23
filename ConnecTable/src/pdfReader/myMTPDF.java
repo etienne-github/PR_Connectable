@@ -15,7 +15,7 @@
  *   along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  ***********************************************************************/
-package pdfReader;
+package pdfreader;
 
 import java.awt.Image;
 import java.beans.PropertyChangeSupport;
@@ -207,7 +207,7 @@ public class myMTPDF extends MTRectangle {
 //		} catch (IOException e) {
 //			throw new RuntimeException(e);
 //		}
-			System.out.println("page==null: " + (page==null));
+			//.out.println("page==null: " + (page==null));
 		this.setTexture(page.getPImage());
 		this.pageNumber = pnumber;
 		this.updateInfoLayer();
@@ -233,7 +233,7 @@ public class myMTPDF extends MTRectangle {
 
 	public synchronized void updateTexture(){
 		if(!isRendering()){
-			System.out.println("RE-RENDER TEXTURE");
+			//System.out.println("RE-RENDER TEXTURE");
 			setRenderingFlag(true);
 			new ThreadAndPreDrawAction(((MTApplication)app).getCurrentScene()) {
 				private RenderedPDFPage page = null;
@@ -276,7 +276,7 @@ public class myMTPDF extends MTRectangle {
 				}
 			};
 		}else{
-			System.out.println("IGNORE Page change");
+			//System.out.println("IGNORE Page change");
 		}
 	}
 	private synchronized void setRenderingFlag(boolean flag){
@@ -307,7 +307,7 @@ public class myMTPDF extends MTRectangle {
 		this.sizeLimitX = sizeLimitX;
 	}
 	private void addListener(){
-		System.err.println("register TapAndHoldProcessor");
+		//System.err.println("register TapAndHoldProcessor");
 		//Add tap&hold gesture to clear all tails
 		TapAndHoldProcessor tapAndHold = new TapAndHoldProcessor((MTApplication)app);
 		tapAndHold.setLockPriority(1.1f);

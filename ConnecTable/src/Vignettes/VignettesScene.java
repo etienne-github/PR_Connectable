@@ -3,6 +3,7 @@ package Vignettes;
 import menu.MTSlideImage;
 
 import org.mt4j.AbstractMTApplication;
+import org.mt4j.MTApplication;
 import org.mt4j.components.visibleComponents.shapes.MTRectangle;
 import org.mt4j.components.visibleComponents.shapes.MTRectangle.PositionAnchor;
 import org.mt4j.components.visibleComponents.widgets.MTImage;
@@ -24,6 +25,9 @@ import org.mt4j.util.font.FontManager;
 import org.mt4j.util.math.Vector3D;
 import org.mt4j.util.math.Vertex;
 
+
+
+import pdfreader.PdfViewer;
 import processing.core.PApplet;
 import processing.core.PImage;
 import java.io.File;
@@ -153,6 +157,18 @@ public class VignettesScene extends AbstractScene {
 			for (int i = 0; i < pdfsNames.length; i++) {
 				//Chargement du PDF
 				
+				/*
+				
+				PdfViewer p = new PdfViewer(1f, getPathToPdfs() + pdfsNames[i], (MTApplication) app);
+				
+				p.addGestureListener(DragProcessor.class, new InertiaCircuDragAction(app));
+				getCanvas().addChild(p);
+				p.setPositionGlobal(center);
+				p.scaleGlobal(0.6f, 0.6f, 1, center);
+				p.translate(new Vector3D(0, 200));
+				p.rotateZ(center, (float)(-currentNb*(360/count)));
+				*/
+				
 				MTPdf pdf;
 				try {
 					pdf = new MTPdf(getPathToPdfs() + pdfsNames[i], app);
@@ -167,6 +183,7 @@ public class VignettesScene extends AbstractScene {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
+
 			}
 		}
 	}	

@@ -178,7 +178,7 @@ public class CircularContainer extends AbstractScene {
 		//set Background
 		MTRectangle background = new MTRectangle(0,0,mtApplication.width, mtApplication.height , mtApplication);
 		background.setStrokeColor(alphaZero);
-		PImage backImage = mtApplication.loadImage("."+((String)File.separator)+"src"+((String)File.separator)+"circularcontainer"+((String)File.separator)+"data"+((String)File.separator)+"image"+((String)File.separator)+"circularcontainer_background.jpg");
+		PImage backImage = mtApplication.loadImage("."+((String)File.separator)+"src"+((String)File.separator)+"circularcontainer"+((String)File.separator)+"data"+((String)File.separator)+"image"+((String)File.separator)+"circularContainer_background.jpg");
 		background.setTexture(backImage);
 		background.setPickable(false);
 		getCanvas().addChild(background);

@@ -11,7 +11,7 @@ public class StartShellCirculaire extends MTApplication {
 	}
 	
 	public void startUp(){
-		getInputManager().registerInputSource(new MacTrackpadSource(this));
+		//getInputManager().registerInputSource(new MacTrackpadSource(this));
 		this.addScene(new MTShellCirculaire(this, "Multi-Touch Shell Scene"));
 	}
 	

@@ -43,6 +43,7 @@ public class CircularContainer extends AbstractScene {
 	private Vector3D center;
 	private float sceneRadius;
 	private MTApplication app;
+	private MTComponent myCompParent;
 	//StubInterfaceMemory myStubInterfaceMemory; /*Use if delegate interface bt copying interface items*/
 	
 	/**
@@ -63,9 +64,11 @@ public class CircularContainer extends AbstractScene {
 		super(mtApplication,name);
 		
 		app=mtApplication;
+		
 		MTColor alphaZero = new MTColor(0,0,0);
 		alphaZero.setAlpha(0);
 		final Circularizable component = comp;
+		myCompParent = comp.getMyParent();
 		
 		//Get tracer
 		CursorTracer c = new CursorTracer(mtApplication, this);
@@ -119,8 +122,8 @@ public class CircularContainer extends AbstractScene {
 						component.recoverInterface();
 						
 						
-						
-						app.getCurrentScene().getCanvas().addChild((MTComponent)component);
+						component.giveBackToParent(myCompParent);
+						//app.getCurrentScene().getCanvas().addChild((MTComponent)component);
 						
 						
 						//System.out.println("popped");
@@ -233,7 +236,6 @@ public class CircularContainer extends AbstractScene {
 				TapEvent te = (TapEvent)ge;
 				if (te.isTapped()){
 					if (app.popScene()){
-						//System.out.println("popped");
 					}
 				}
 				

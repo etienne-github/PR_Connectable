@@ -157,19 +157,20 @@ public class VignettesScene extends AbstractScene {
 			for (int i = 0; i < pdfsNames.length; i++) {
 				//Chargement du PDF
 				
-				/*
+				
 				
 				PdfViewer p = new PdfViewer(1f, getPathToPdfs() + pdfsNames[i], (MTApplication) app);
 				
 				p.addGestureListener(DragProcessor.class, new InertiaCircuDragAction(app));
 				getCanvas().addChild(p);
 				p.setPositionGlobal(center);
-				p.scaleGlobal(0.6f, 0.6f, 1, center);
+				p.scaleGlobal(0.4f, 0.4f, 1, center);
 				p.translate(new Vector3D(0, 200));
 				p.rotateZ(center, (float)(-currentNb*(360/count)));
-				*/
+				currentNb++;
 				
-				MTPdf pdf;
+				
+				/*MTPdf pdf;
 				try {
 					pdf = new MTPdf(getPathToPdfs() + pdfsNames[i], app);
 					pdf.addGestureListener(DragProcessor.class, new InertiaCircuDragAction(app));
@@ -182,7 +183,7 @@ public class VignettesScene extends AbstractScene {
 				} catch (IOException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
-				}
+				}*/
 
 			}
 		}

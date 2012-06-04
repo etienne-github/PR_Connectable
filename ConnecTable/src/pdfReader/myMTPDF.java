@@ -1,20 +1,4 @@
-/***********************************************************************
- *   MT4j Extension: PDF
- *   
- *   This program is free software: you can redistribute it and/or modify
- *   it under the terms of the GNU Lesser General Public License (LGPL)
- *   as published by the Free Software Foundation, either version 3
- *   of the License, or (at your option) any later version.
- *
- *   This program is distributed in the hope that it will be useful,
- *   but WITHOUT ANY WARRANTY; without even the implied warranty of
- *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *   GNU Lesser General Public License for more details.
- *
- *   You should have received a copy of the LGPL
- *   along with this program.  If not, see <http://www.gnu.org/licenses/>.
- *
- ***********************************************************************/
+
 package pdfreader;
 
 import java.awt.Image;
@@ -57,9 +41,12 @@ import processing.core.PApplet;
 import com.sun.pdfview.PDFFile;
 
 /**
- * @author Uwe Laufs
- *
+ * The Class myMTFPD. 
+ * A Uwe Laufs MTPDF modified class.
+ * 
+ * @author Etienne Girot
  */
+
 public class myMTPDF extends MTRectangle {
 	private File pdf;
 	private int pageNumber;
@@ -211,10 +198,11 @@ public class myMTPDF extends MTRectangle {
 		this.setTexture(page.getPImage());
 		this.pageNumber = pnumber;
 		this.updateInfoLayer();
+		//TODO check if prefetch really neeeded
 		if(pn<this.numberOfPages){
-			new PrefetchThread(previewLoader, pdf, new int[]{pageNumber-1, pageNumber+1}).start();
+			//new PrefetchThread(previewLoader, pdf, new int[]{pageNumber-1, pageNumber+1}).start();
 		}else{
-			new PrefetchThread(previewLoader, pdf, new int[]{pageNumber-1}).start();
+			//new PrefetchThread(previewLoader, pdf, new int[]{pageNumber-1}).start();
 		}
 		pdfPCSupport.firePropertyChange("page_number", null, this.pageNumber);
 

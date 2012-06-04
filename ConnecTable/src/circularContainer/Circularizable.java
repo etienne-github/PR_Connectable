@@ -39,5 +39,7 @@ public interface Circularizable {
 	 * Reset size and position of the previously nested component
 	 */
 	public void recoverSizeAndPosition();
+	public MTComponent getMyParent();
+	public void giveBackToParent(MTComponent parent);
 	
 }

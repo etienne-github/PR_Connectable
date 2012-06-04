@@ -10,6 +10,7 @@ import java.util.Observer;
 import org.mt4j.AbstractMTApplication;
 import org.mt4j.MTApplication;
 import org.mt4j.components.MTCanvas;
+import org.mt4j.components.MTComponent;
 import org.mt4j.components.StateChangeEvent;
 import org.mt4j.components.StateChangeListener;
 import org.mt4j.components.TransformSpace;
@@ -111,7 +112,7 @@ public class PdfViewer extends MTRectangle implements PropertyChangeListener, Ci
 		super(0,0,appl);
 
 		this.app = appl;
-		
+
 		
 
 		class ScalableScene extends AbstractScene{
@@ -170,10 +171,10 @@ public class PdfViewer extends MTRectangle implements PropertyChangeListener, Ci
 		
 		
 		//preview list
-		MTList list=new MTList(pdfWidth,0,ListWidth,pdfHeight,0,app);
+		PreviewList list=new PreviewList(pdfWidth,0,ListWidth,pdfHeight,0,app);
 		list.setNoStroke(true);
 		this.addChild(list);
-		MTListCell currentCell;
+		PreviewListCell currentCell;
 		
 		//preview list tap gesture listener (go to a determined page) 
 		class MTTapGestureCell implements IGestureEventListener{
@@ -203,11 +204,11 @@ public class PdfViewer extends MTRectangle implements PropertyChangeListener, Ci
 		//init preview list
 		for(int i=0;i<pdf.getNumberOfPage();i++){
 			//.out.println(i);
-			MTRectangle rect=new MTRectangle(contentXOffset, contentYOffset/*pdf.getWidthXY(TransformSpace.LOCAL)/18*/, 0,contentWidth, contentHeight, app);
-			rect.setTexture(new PImage(pdf.getPreviewOfPage(i+1)));
+			final MTRectangle rect=new MTRectangle(contentXOffset, contentYOffset/*pdf.getWidthXY(TransformSpace.LOCAL)/18*/, 0,contentWidth, contentHeight, app);
+			
 			rect.setStrokeColor(new MTColor(80,80,80, 255));
-			currentCell = new MTListCell(CellWidth,CellHeight,app);
-			currentCell.addChild(rect);
+			currentCell = new PreviewListCell(CellWidth,CellHeight,app,pdf);
+			currentCell.addPreview(rect,i+1);
 			currentCell.setNoStroke(true);
 			currentCell.setFillColor(new MTColor(146,146,146));
 			currentCell.registerInputProcessor(new TapProcessor(app));
@@ -215,6 +216,20 @@ public class PdfViewer extends MTRectangle implements PropertyChangeListener, Ci
 
 			list.addListElement(currentCell);
 			
+			//System.out.println((rect.getCenterPointGlobal().y-CellHeight)+" > "+(list.getCenterPointGlobal().y+pdfHeight)+" ?");
+			
+			//TODO Faire une fonction de contr™le si la preview est dans la barre
+			
+			
+
+			list.refreshPreviews();
+
+
+			
+			/*if(rect.getCenterPointGlobal().y-CellHeight/2f<list.getCenterPointGlobal().y+pdfHeight/2f){
+				rect.setTexture(new PImage(pdf.getPreviewOfPage(i+1)));
+			}*/
+
 		}
 		
 		//set buttons previous/next page + switch to circularcontainer
@@ -518,9 +533,7 @@ public class PdfViewer extends MTRectangle implements PropertyChangeListener, Ci
 		//BY MOVING INTERFACE ITEMS
 		
 		//resize
-		nextPage.setSizeXYGlobal(40, 40);
-		previousPage.setSizeXYGlobal(40, 40);
-		displayPageNumber.setSizeXYGlobal(70, 40);
+
 		
 
 		//add to circularContainer
@@ -529,16 +542,31 @@ public class PdfViewer extends MTRectangle implements PropertyChangeListener, Ci
 		c.getCanvas().addChild(displayPageNumber);
 		
 		//move
-		displayPageNumber.setPositionGlobal(new Vector3D(app.width/2f,app.height/2f+this.getHeightXY(TransformSpace.GLOBAL)/2f+displayPageNumber.getHeightXY(TransformSpace.GLOBAL)/2+10-subPaneHeight));
-		previousPage.setPositionGlobal(new Vector3D(app.width/2f-displayPageNumber.getWidthXY(TransformSpace.GLOBAL)/2-previousPage.getWidthXY(TransformSpace.GLOBAL)-10,app.height/2f+this.getHeightXY(TransformSpace.GLOBAL)/2f+displayPageNumber.getHeightXY(TransformSpace.GLOBAL)/2+10-subPaneHeight));
-		nextPage.setPositionGlobal(new Vector3D(app.width/2f+displayPageNumber.getWidthXY(TransformSpace.GLOBAL)/2+nextPage.getWidthXY(TransformSpace.GLOBAL)+10,app.height/2f+this.getHeightXY(TransformSpace.GLOBAL)/2f+displayPageNumber.getHeightXY(TransformSpace.GLOBAL)/2+10-subPaneHeight));
 		
+		
+		/*displayPageNumber.setPositionGlobal(new Vector3D(app.width/2f,app.height/2f+this.getHeightXY(TransformSpace.GLOBAL)/2f+displayPageNumber.getHeightXY(TransformSpace.GLOBAL)/2+10-subPaneHeight));
+		previousPage.setPositionGlobal(new Vector3D(app.width/2f-displayPageNumber.getWidthXY(TransformSpace.GLOBAL)/2-previousPage.getWidthXY(TransformSpace.GLOBAL)-10,app.height/2f+this.getHeightXY(TransformSpace.GLOBAL)/2f+displayPageNumber.getHeightXY(TransformSpace.GLOBAL)/2+10-subPaneHeight));
+		nextPage.setPositionGlobal(new Vector3D(app.width/2f+displayPageNumber.getWidthXY(TransformSpace.GLOBAL)/2+nextPage.getWidthXY(TransformSpace.GLOBAL)+10,app.height/2f+this.getHeightXY(TransformSpace.GLOBAL)/2f+displayPageNumber.getHeightXY(TransformSpace.GLOBAL)/2+10-subPaneHeight));*/
+		
+		nextPage.setSizeXYGlobal(30, 30);
+		previousPage.setSizeXYGlobal(30, 30);
+		displayPageNumber.setSizeXYGlobal(50, 30);
+		
+		displayPageNumber.setPositionGlobal(new Vector3D(512.0f,678.6432f));
+		previousPage.setPositionGlobal(new Vector3D(456.8383f,678.6432f));
+		nextPage.setPositionGlobal(new Vector3D(567.1616f,678.6432f));
+		
+		
+		System.out.println("disp "+displayPageNumber.getPosition(TransformSpace.GLOBAL));
+		System.out.println("prev "+previousPage.getPosition(TransformSpace.GLOBAL));
+		System.out.println("nex "+nextPage.getPosition(TransformSpace.GLOBAL));
 
 		subPane.setVisible(false);
 		subPane.setPickable(false);
 		this.setPickable(false);
 		this.setNoFill(true);
 		this.setNoStroke(true);
+		//this.setVisible(false);
 
 	}
 
@@ -657,6 +685,18 @@ public class PdfViewer extends MTRectangle implements PropertyChangeListener, Ci
 		
 
 		
+	}
+
+
+	@Override
+	public MTComponent getMyParent() {
+		return this.getParent();
+	}
+
+
+	@Override
+	public void giveBackToParent(MTComponent parent) {
+		parent.addChild(this);		
 	}
 
 	

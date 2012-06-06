@@ -88,7 +88,7 @@ public class MTShellCirculaire extends AbstractScene {
 	private int preferredIconWidth;
 	
 	/** The switch directly to scene. */
-	private boolean switchDirectlyToScene = false;
+	private boolean switchDirectlyToScene = true;
 	
 	//TODO (dont allow throwing stuff out of the screen) or destroy it then
 	//TODO loading screen
@@ -279,9 +279,9 @@ public class MTShellCirculaire extends AbstractScene {
 		list.setPositionGlobal(new Vector3D(app.width/2f, app.height/2f));
 		getCanvas().setFrustumCulling(true); 
 		
-		PdfViewer demoViewer =new PdfViewer(0.4f,"./src/pdfReader/data/UTC.pdf",(MTApplication) app);
-		this.getCanvas().addChild(demoViewer);
-		demoViewer.setPositionGlobal(new Vector3D(app.width/2f,app.height/2f));
+	//	PdfViewer demoViewer =new PdfViewer(0.4f,"./src/pdfReader/data/UTC.pdf",(MTApplication) app);
+	//	this.getCanvas().addChild(demoViewer);
+	//	demoViewer.setPositionGlobal(new Vector3D(app.width/2f,app.height/2f));
 		
 
 		

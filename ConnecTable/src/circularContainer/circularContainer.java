@@ -44,6 +44,7 @@ public class CircularContainer extends AbstractScene {
 	private float sceneRadius;
 	private MTApplication app;
 	private MTComponent myCompParent;
+	MTImageButton exitButton;
 	//StubInterfaceMemory myStubInterfaceMemory; /*Use if delegate interface bt copying interface items*/
 	
 	/**
@@ -69,6 +70,7 @@ public class CircularContainer extends AbstractScene {
 		alphaZero.setAlpha(0);
 		final Circularizable component = comp;
 		myCompParent = comp.getMyParent();
+		//System.err.println("parent is "+myCompParent);
 		
 		//Get tracer
 		CursorTracer c = new CursorTracer(mtApplication, this);
@@ -104,7 +106,7 @@ public class CircularContainer extends AbstractScene {
 		centerCircle.addGestureListener(DragProcessor.class, new CircularContainerDragListener(centerCircle,this));
 		
 		//Add exit button
-		MTImageButton exitButton=new MTImageButton(app.loadImage("."+((String)File.separator)+"src"+((String)File.separator)+"circularcontainer"+((String)File.separator)+"data"+((String)File.separator)+"image"+((String)File.separator)+"exit.png"
+		exitButton=new MTImageButton(app.loadImage("."+((String)File.separator)+"src"+((String)File.separator)+"circularcontainer"+((String)File.separator)+"data"+((String)File.separator)+"image"+((String)File.separator)+"exit.png"
 ),app);
 		exitButton.setNoStroke(true);
 		getCanvas().addChild(exitButton);
@@ -116,6 +118,8 @@ public class CircularContainer extends AbstractScene {
 			public boolean processGestureEvent(MTGestureEvent ge) {
 				TapEvent te = (TapEvent)ge;
 				if (te.isTapped()){
+					//System.err.println("currentScene is"+app.getCurrentScene());
+					CircularContainer.this.exitButton.removeAllGestureEventListeners();
 					if (app.popScene()){
 
 						component.recoverSizeAndPosition();
